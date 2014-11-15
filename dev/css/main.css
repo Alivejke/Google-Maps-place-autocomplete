@@ -1,0 +1,42 @@
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+html, 
+body {
+    height: 100%;
+}
+
+#gmap-search {
+    height: 100%;
+    width: 100%;
+}
+
+.form-input {
+    border: 1px solid transparent;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 32px;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    background-color: #fff;
+    padding: 0 11px 0 13px;
+}
+
+#gmap-seach-input {
+    margin-top: 16px;
+    width: 400px;
+    text-overflow: ellipsis;
+}
+
+#gmap-seach-input:focus {
+    border-color: #4d90fe;
+    margin-left: -1px;
+    padding-left: 14px;  /* Regular padding-left + 1. */
+    width: 401px;
+}
+
