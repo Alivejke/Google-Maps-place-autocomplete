@@ -1,63 +1,72 @@
-function initialize() {
+
+function GmapSearch(options) {
     var mapOptions = {
-        center: new google.maps.LatLng(-33.8688, 151.2195),
-        zoom: 13
-    };
+            center: new google.maps.LatLng(-33.8688, 151.2195),
+            zoom: 13
+        },
+        self = this;
 
-    var map = new google.maps.Map(document.getElementById('gmap-search'), mapOptions);
+    if(options.mapOptions) {
+        mapOptions = helpers.merge(mapOptionsDefaults, options.mapOptions);
+    }
 
-    var input = document.getElementById('gmap-seach-input');
+    self.init = function() {
+        self.map = new google.maps.Map(document.getElementById(options.mapSelector), mapOptions);
 
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+        self.input = document.getElementById(options.inputSelector);
 
-    var autocomplete = new google.maps.places.Autocomplete(input);
-    autocomplete.bindTo('bounds', map);
+        self.map.controls[google.maps.ControlPosition.TOP_LEFT].push(self.input);
 
-    var infowindow = new google.maps.InfoWindow();
+        self.autocomplete = new google.maps.places.Autocomplete(self.input);
+        self.autocomplete.bindTo('bounds', self.map);
 
-    var marker = new google.maps.Marker({
-        map: map,
-        anchorPoint: new google.maps.Point(0, -29)
-    });
+        self.infowindow = new google.maps.InfoWindow();
 
-    google.maps.event.addListener(autocomplete, 'place_changed', function() {
-        infowindow.close();
-        marker.setVisible(false);
+        self.marker = new google.maps.Marker({
+            map: self.map,
+            anchorPoint: new google.maps.Point(0, -29)
+        });
 
-        var place = autocomplete.getPlace();
-        if (!place.geometry) {
-            return;
-        }
+        google.maps.event.addListener(self.autocomplete, 'place_changed', function() {
+            self.infowindow.close();
+            self.marker.setVisible(false);
 
-        if (place.geometry.viewport) {
-            map.fitBounds(place.geometry.viewport);
-        } else {
-            map.setCenter(place.geometry.location);
-            map.setZoom(17);  // Why 17? Because it looks good.
-        }
+            self.place = self.autocomplete.getPlace();
+            if (!self.place.geometry) {
+                return;
+            }
 
-        marker.setIcon(({
-            url: place.icon,
-            size: new google.maps.Size(71, 71),
-            origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(17, 34),
-            scaledSize: new google.maps.Size(35, 35)
-        }));
+            if (self.place.geometry.viewport) {
+                self.map.fitBounds(self.place.geometry.viewport);
+            } else {
+                self.map.setCenter(self.place.geometry.location);
+                self.map.setZoom(17);  // Why 17? Because it looks good.
+            }
 
-        marker.setPosition(place.geometry.location);
-        marker.setVisible(true);
+            self.marker.setIcon(({
+                url: self.place.icon,
+                size: new google.maps.Size(71, 71),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(17, 34),
+                scaledSize: new google.maps.Size(35, 35)
+            }));
 
-        var address = '';
-        if (place.address_components) {
-            address = [
-                (place.address_components[0] && place.address_components[0].short_name || ''),
-                (place.address_components[1] && place.address_components[1].short_name || ''),
-                (place.address_components[2] && place.address_components[2].short_name || '')
-            ].join(' ');
-        }
+            self.marker.setPosition(self.place.geometry.location);
+            self.marker.setVisible(true);
 
-        infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address + '</div>');
-        infowindow.open(map, marker);
-    });
+            self.address = '';
+            if (self.place.address_components) {
+                self.address = [
+                    (self.place.address_components[0] && self.place.address_components[0].short_name || ''),
+                    (self.place.address_components[1] && self.place.address_components[1].short_name || ''),
+                    (self.place.address_components[2] && self.place.address_components[2].short_name || '')
+                ].join(' ');
+            }
 
+            self.infowindow.setContent('<div><strong>' + self.place.name + '</strong><br>' + self.address + '</div>');
+            self.infowindow.open(self.map, self.marker);
+        });
+    }
+
+    google.maps.event.addDomListener(window, 'load', self.init);
 }
